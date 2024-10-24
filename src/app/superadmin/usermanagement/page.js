@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Search, UserPlus, Upload, Pencil, Trash2 } from "lucide-react";
-import { initialUsers } from "./userData/page";
+import initialUsers from "./userData/page";
 import AddUserModal from "./addUserModal/page";
 import ImportUserModal from "./importUsersModal/page";
 import EditUserModal from "./editUserModal/page"; // Import modal edit

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, UserPlus, Upload, Pencil, Trash2 } from "lucide-react";
 import initialUsers from "./userData/page"; // Pastikan jalur import benar
 import AddUserModal from "./addUserModal/page"; // Pastikan jalur import benar
@@ -8,7 +8,7 @@ import EditUserModal from "./editUserModal/page"; // Pastikan jalur import benar
 import DeleteUserModal from "./deleteUserModal/page"; // Pastikan jalur import benar
 
 export default function UserManagementSuperAdmin() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]); // Mulai dengan state kosong
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddUserModalOpen, setAddUserModalOpen] = useState(false);
   const [isImportUserModalOpen, setImportUserModalOpen] = useState(false);
@@ -16,6 +16,11 @@ export default function UserManagementSuperAdmin() {
   const [userToEdit, setUserToEdit] = useState(null);
   const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+
+  useEffect(() => {
+    // Mengisi state dengan data dari initialUsers setelah komponen dimount
+    setUsers(initialUsers);
+  }, []); // Hanya dijalankan sekali saat komponen dimount
 
   const filteredUsers = users.filter(
     (user) =>

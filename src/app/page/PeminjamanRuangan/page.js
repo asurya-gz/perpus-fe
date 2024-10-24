@@ -23,7 +23,16 @@ export default function PeminjamanRuangan({ room, selectedDate, ruanganData }) {
     return slotDateTime < new Date();
   };
 
-  const selectedRuangan = ruanganData.find((ruangan) => ruangan.name === room);
+  // Cek ketersediaan ruanganData sebelum mencari selectedRuangan
+  const selectedRuangan = ruanganData?.find((ruangan) => ruangan.name === room);
+
+  // Pastikan selectedRuangan ada sebelum melanjutkan
+  if (!selectedRuangan) {
+    return (
+      <p className="text-center text-gray-500">Data ruangan tidak tersedia.</p>
+    );
+  }
+
   console.log(selectedRuangan.withLetter);
 
   // Fungsi untuk menentukan warna berdasarkan status slot

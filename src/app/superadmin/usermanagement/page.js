@@ -1,11 +1,43 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Search, UserPlus, Upload, Pencil, Trash2 } from "lucide-react";
-import initialUsers from "./userData/page"; // Pastikan jalur impor benar
 import AddUserModal from "./addUserModal/page";
 import ImportUserModal from "./importUsersModal/page";
 import EditUserModal from "./editUserModal/page";
 import DeleteUserModal from "./deleteUserModal/page";
+
+const initialUsers = [
+  {
+    id: 1,
+    username: "agung_surya",
+    email: "agung@example.com",
+    role: "Admin",
+  },
+  {
+    id: 2,
+    username: "diana_rahma",
+    email: "diana@example.com",
+    role: "User",
+  },
+  {
+    id: 3,
+    username: "budi_setiawan",
+    email: "budi@example.com",
+    role: "Moderator",
+  },
+  {
+    id: 4,
+    username: "siti_nurbaya",
+    email: "siti@example.com",
+    role: "Admin",
+  },
+  {
+    id: 5,
+    username: "rudi_susanto",
+    email: "rudi@example.com",
+    role: "User",
+  },
+];
 
 export default function UserManagementSuperAdmin() {
   const [users, setUsers] = useState([]);

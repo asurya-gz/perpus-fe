@@ -1,21 +1,21 @@
 "use client";
 import React, { useState } from "react";
 import { Search, UserPlus, Upload, Pencil, Trash2 } from "lucide-react";
-import initialUsers from "./userData/page";
-import AddUserModal from "./addUserModal/page";
-import ImportUserModal from "./importUsersModal/page";
-import EditUserModal from "./editUserModal/page"; // Import modal edit
-import DeleteUserModal from "./deleteUserModal/page"; // Import modal delete
+import initialUsers from "./userData/page"; // Pastikan jalur import benar
+import AddUserModal from "./addUserModal/page"; // Pastikan jalur import benar
+import ImportUserModal from "./importUsersModal/page"; // Pastikan jalur import benar
+import EditUserModal from "./editUserModal/page"; // Pastikan jalur import benar
+import DeleteUserModal from "./deleteUserModal/page"; // Pastikan jalur import benar
 
 export default function UserManagementSuperAdmin() {
   const [users, setUsers] = useState(initialUsers);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddUserModalOpen, setAddUserModalOpen] = useState(false);
   const [isImportUserModalOpen, setImportUserModalOpen] = useState(false);
-  const [isEditUserModalOpen, setEditUserModalOpen] = useState(false); // State untuk modal edit
-  const [userToEdit, setUserToEdit] = useState(null); // State untuk menyimpan pengguna yang akan diedit
-  const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false); // State untuk modal hapus
-  const [userToDelete, setUserToDelete] = useState(null); // State untuk menyimpan pengguna yang akan dihapus
+  const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const filteredUsers = users.filter(
     (user) =>
@@ -24,46 +24,32 @@ export default function UserManagementSuperAdmin() {
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOpenAddUserModal = () => {
-    setAddUserModalOpen(true);
-  };
+  const handleOpenAddUserModal = () => setAddUserModalOpen(true);
+  const handleCloseAddUserModal = () => setAddUserModalOpen(false);
+  const handleOpenImportUserModal = () => setImportUserModalOpen(true);
+  const handleCloseImportUserModal = () => setImportUserModalOpen(false);
 
-  const handleCloseAddUserModal = () => {
-    setAddUserModalOpen(false);
-  };
-
-  const handleOpenImportUserModal = () => {
-    setImportUserModalOpen(true);
-  };
-
-  const handleCloseImportUserModal = () => {
-    setImportUserModalOpen(false);
-  };
-
-  // Fungsi untuk membuka modal edit
+  // Open Edit User Modal
   const handleOpenEditUserModal = (user) => {
-    setUserToEdit(user); // Simpan pengguna yang akan diedit
-    setEditUserModalOpen(true); // Buka modal edit
+    setUserToEdit(user);
+    setEditUserModalOpen(true);
   };
-
   const handleCloseEditUserModal = () => {
     setEditUserModalOpen(false);
-    setUserToEdit(null); // Reset pengguna yang akan diedit saat modal ditutup
+    setUserToEdit(null);
   };
 
-  // Fungsi untuk membuka modal hapus
+  // Open Delete User Modal
   const handleOpenDeleteUserModal = (user) => {
-    setUserToDelete(user); // Simpan pengguna yang akan dihapus
-    setDeleteUserModalOpen(true); // Buka modal hapus
+    setUserToDelete(user);
+    setDeleteUserModalOpen(true);
   };
-
   const handleCloseDeleteUserModal = () => {
     setDeleteUserModalOpen(false);
-    setUserToDelete(null); // Reset pengguna yang akan dihapus saat modal ditutup
+    setUserToDelete(null);
   };
 
   const handleDeleteUser = (userId) => {
-    // Logika untuk menghapus pengguna dari state
     setUsers(users.filter((user) => user.id !== userId));
   };
 
@@ -87,14 +73,14 @@ export default function UserManagementSuperAdmin() {
 
         <div className="flex space-x-4">
           <button
-            onClick={handleOpenAddUserModal} // Buka modal tambah pengguna
+            onClick={handleOpenAddUserModal}
             className="px-4 py-2 bg-blue-600 text-gray-100 rounded-md hover:bg-blue-700 transition duration-300 flex items-center"
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Add User
           </button>
           <button
-            onClick={handleOpenImportUserModal} // Buka modal impor pengguna
+            onClick={handleOpenImportUserModal}
             className="px-4 py-2 bg-green-600 text-gray-100 rounded-md hover:bg-green-700 transition duration-300 flex items-center"
           >
             <Upload className="mr-2 h-4 w-4" />
@@ -135,13 +121,13 @@ export default function UserManagementSuperAdmin() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
-                    onClick={() => handleOpenEditUserModal(user)} // Buka modal edit ketika ikon pensil diklik
+                    onClick={() => handleOpenEditUserModal(user)}
                     className="text-blue-600 hover:text-blue-800 mr-3"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => handleOpenDeleteUserModal(user)} // Buka modal hapus ketika ikon sampah diklik
+                    onClick={() => handleOpenDeleteUserModal(user)}
                     className="text-red-600 hover:text-red-800"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -153,7 +139,7 @@ export default function UserManagementSuperAdmin() {
         </table>
       </div>
 
-      {/* Render modal di sini */}
+      {/* Render modals */}
       <AddUserModal
         isOpen={isAddUserModalOpen}
         onClose={handleCloseAddUserModal}
@@ -165,13 +151,13 @@ export default function UserManagementSuperAdmin() {
       <EditUserModal
         isOpen={isEditUserModalOpen}
         onClose={handleCloseEditUserModal}
-        user={userToEdit} // Pass data pengguna yang akan diedit ke modal
+        user={userToEdit}
       />
       <DeleteUserModal
         isOpen={isDeleteUserModalOpen}
         onClose={handleCloseDeleteUserModal}
-        userId={userToDelete ? userToDelete.id : null} // Pass ID pengguna yang akan dihapus ke modal
-        onDelete={handleDeleteUser} // Pass fungsi penghapusan ke modal
+        userId={userToDelete ? userToDelete.id : null}
+        onDelete={handleDeleteUser}
       />
     </div>
   );

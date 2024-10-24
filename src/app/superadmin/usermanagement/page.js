@@ -1,14 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Search, UserPlus, Upload, Pencil, Trash2 } from "lucide-react";
-import initialUsers from "./userData/page"; // Pastikan jalur import benar
-import AddUserModal from "./addUserModal/page"; // Pastikan jalur import benar
-import ImportUserModal from "./importUsersModal/page"; // Pastikan jalur import benar
-import EditUserModal from "./editUserModal/page"; // Pastikan jalur import benar
-import DeleteUserModal from "./deleteUserModal/page"; // Pastikan jalur import benar
+import initialUsers from "./userData/page"; // Pastikan jalur impor benar
+import AddUserModal from "./addUserModal/page";
+import ImportUserModal from "./importUsersModal/page";
+import EditUserModal from "./editUserModal/page";
+import DeleteUserModal from "./deleteUserModal/page";
 
 export default function UserManagementSuperAdmin() {
-  const [users, setUsers] = useState([]); // Mulai dengan state kosong
+  const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddUserModalOpen, setAddUserModalOpen] = useState(false);
   const [isImportUserModalOpen, setImportUserModalOpen] = useState(false);
@@ -18,9 +18,8 @@ export default function UserManagementSuperAdmin() {
   const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
-    // Mengisi state dengan data dari initialUsers setelah komponen dimount
     setUsers(initialUsers);
-  }, []); // Hanya dijalankan sekali saat komponen dimount
+  }, []);
 
   const filteredUsers = users.filter(
     (user) =>
@@ -33,8 +32,6 @@ export default function UserManagementSuperAdmin() {
   const handleCloseAddUserModal = () => setAddUserModalOpen(false);
   const handleOpenImportUserModal = () => setImportUserModalOpen(true);
   const handleCloseImportUserModal = () => setImportUserModalOpen(false);
-
-  // Open Edit User Modal
   const handleOpenEditUserModal = (user) => {
     setUserToEdit(user);
     setEditUserModalOpen(true);
@@ -43,8 +40,6 @@ export default function UserManagementSuperAdmin() {
     setEditUserModalOpen(false);
     setUserToEdit(null);
   };
-
-  // Open Delete User Modal
   const handleOpenDeleteUserModal = (user) => {
     setUserToDelete(user);
     setDeleteUserModalOpen(true);
@@ -63,7 +58,6 @@ export default function UserManagementSuperAdmin() {
       <h1 className="text-3xl font-semibold text-gray-800 mb-6 border-b-2 border-gray-300 pb-2">
         User Management
       </h1>
-
       <div className="mb-6 flex justify-between items-center">
         <div className="relative w-64">
           <input
@@ -75,7 +69,6 @@ export default function UserManagementSuperAdmin() {
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-
         <div className="flex space-x-4">
           <button
             onClick={handleOpenAddUserModal}
@@ -93,7 +86,6 @@ export default function UserManagementSuperAdmin() {
           </button>
         </div>
       </div>
-
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full">
           <thead className="bg-gray-50">
@@ -143,7 +135,6 @@ export default function UserManagementSuperAdmin() {
           </tbody>
         </table>
       </div>
-
       {/* Render modals */}
       <AddUserModal
         isOpen={isAddUserModalOpen}

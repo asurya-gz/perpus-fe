@@ -14,10 +14,13 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:4000/api/login", {
-        email: username, // Ganti username dengan email
-        password,
-      });
+      const response = await axios.post(
+        "https://be-perpus-undip.up.railway.app/api/login",
+        {
+          email: username, // Ganti username dengan email
+          password,
+        }
+      );
 
       // Ambil email dan role dari respons
       const { email, role } = response.data.user; // Sesuaikan dengan struktur respons Anda

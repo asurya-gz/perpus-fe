@@ -21,7 +21,7 @@ const KonfirmasiContent = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/verifikasi-pengguna",
+        "https://be-perpus-undip.up.railway.app/api/verifikasi-pengguna",
         {
           email: email,
           verificationCode: verificationCode,

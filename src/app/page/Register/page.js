@@ -33,7 +33,7 @@ export default function Register() {
     try {
       // Buat pengguna di tabel users terlebih dahulu
       const userResponse = await axios.post(
-        "http://localhost:4000/api/register",
+        "https://be-perpus-undip.up.railway.app/api/register",
         {
           email,
           password,
@@ -47,7 +47,7 @@ export default function Register() {
 
       // Jika berhasil, lanjutkan untuk membuat pengguna di tabel pengguna
       const penggunaResponse = await axios.post(
-        "http://localhost:4000/api/register-pengguna",
+        "https://be-perpus-undip.up.railway.app/api/register-pengguna",
         {
           name,
           nim_nip: nimNip,

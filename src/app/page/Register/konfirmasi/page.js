@@ -1,26 +1,25 @@
 "use client";
-import React, { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation"; // Import useSearchParams dan useRouter
-import axios from "axios"; // Import axios
+import React, { useState, Suspense } from "react"; // Tambahkan import Suspense
+import { useSearchParams, useRouter } from "next/navigation";
+import axios from "axios";
 
-const Konfirmasi = () => {
+// Komponen untuk konten utama
+const KonfirmasiContent = () => {
   const searchParams = useSearchParams();
-  const email = searchParams.get("email"); // Ambil email dari query parameter
+  const email = searchParams.get("email");
   const [verificationCode, setVerificationCode] = useState("");
   const [message, setMessage] = useState("");
-  const router = useRouter(); // Inisialisasi useRouter
+  const router = useRouter();
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
 
-    // Validasi input
     if (!verificationCode) {
       setMessage("Silakan masukkan kode verifikasi.");
       return;
     }
 
     try {
-      // Kirim permintaan verifikasi
       const response = await axios.post(
         "http://localhost:4000/api/verifikasi-pengguna",
         {
@@ -29,20 +28,16 @@ const Konfirmasi = () => {
         }
       );
 
-      // Jika berhasil
       if (response.status === 200) {
         setMessage("Kode verifikasi berhasil!");
-        // Redirect ke halaman home setelah 2 detik
         setTimeout(() => {
-          router.push("/page/Login"); // Ganti "/" dengan path halaman home Anda
+          router.push("/page/Login");
         }, 2000);
       }
     } catch (error) {
       if (error.response) {
-        // Permintaan berhasil tetapi server mengembalikan status error
         setMessage("Kode verifikasi salah.");
       } else {
-        // Kesalahan lainnya (misalnya jaringan)
         console.error("Error during verification:", error);
         setMessage("Terjadi kesalahan saat memverifikasi kode.");
       }
@@ -89,6 +84,15 @@ const Konfirmasi = () => {
         </form>
       </div>
     </div>
+  );
+};
+
+// Komponen wrapper dengan Suspense
+const Konfirmasi = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <KonfirmasiContent />
+    </Suspense>
   );
 };
 

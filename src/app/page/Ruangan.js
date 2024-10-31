@@ -4,10 +4,9 @@ import DetailModal from "./PeminjamanRuangan/DetailModal";
 import ruanganData from "./PeminjamanRuangan/components/RuanganData/ruanganData";
 import { FaFileDownload } from "react-icons/fa"; // Menggunakan ikon untuk tombol download
 
-export default function Ruangan() {
+export default function Ruangan(email, role) {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
 
   const handleBoxClick = (room) => {
     setSelectedRoom(room);

@@ -1,15 +1,44 @@
 "use client";
 import React, { useState } from "react";
+import axios from "axios"; // Import axios
+import { useRouter } from "next/navigation"; // Import useRouter untuk navigasi
 import { FaArrowLeft } from "react-icons/fa"; // Import icon untuk back home
+import Cookies from "js-cookie"; // Import js-cookie
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter(); // Inisialisasi router
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Tambahkan logika untuk menangani proses login di sini
-    console.log("Login:", { username, password });
+
+    try {
+      const response = await axios.post("http://localhost:4000/api/login", {
+        email: username, // Ganti username dengan email
+        password,
+      });
+
+      // Ambil email dan role dari respons
+      const { email, role } = response.data.user; // Sesuaikan dengan struktur respons Anda
+
+      // Simpan email dan role ke cookies
+      Cookies.set("email", email);
+      Cookies.set("role", role);
+
+      alert("Berhasil Login");
+      router.push("/");
+    } catch (error) {
+      // Tampilkan pesan kesalahan jika ada
+      if (error.response) {
+        console.log(error.response.data.message);
+      } else {
+        console.log(
+          "Terjadi kesalahan saat melakukan login. Silakan coba lagi."
+        );
+      }
+      console.error("Terjadi kesalahan saat melakukan login:", error);
+    }
   };
 
   return (
@@ -18,11 +47,8 @@ export default function Login() {
       style={{ backgroundImage: "url('/image.png')" }} // Ganti dengan URL gambar latar Anda
     >
       <div className="bg-white bg-opacity-95 p-10 rounded-lg shadow-lg w-[500px]">
-        {" "}
-        {/* Mengubah lebar */}
         <div className="flex justify-center mb-4">
-          <img src="/logo.png" alt="Logo UPT Perpustakaan" className="h-12" />{" "}
-          {/* Ganti dengan logo Anda */}
+          <img src="/logo.png" alt="Logo UPT Perpustakaan" className="h-12" />
         </div>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           Sistem Peminjaman Ruangan
@@ -79,7 +105,7 @@ export default function Login() {
             href="/"
             className="flex items-center justify-center hover:underline"
           >
-            <FaArrowLeft className="mr-2" /> {/* Ikon panah kiri */}
+            <FaArrowLeft className="mr-2" />
             Back home
           </a>
         </p>

@@ -6,7 +6,7 @@ const WhatsAppFloating = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const openWhatsApp = () => {
-    let message = "Hallo Bens Autolight!";
+    let message = "Hallo Perpustakaan Undip!";
     let phoneNumber = "+6282135876098"; // Ganti dengan nomor WhatsApp yang sesuai
     let url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message

@@ -1,53 +1,102 @@
+"use client";
 import React from "react";
-import { FaClock, FaBell, FaFileAlt } from "react-icons/fa"; // Mengimpor ikon dari react-icons
+import {
+  Clock,
+  Bell,
+  FileText,
+  CheckCircle,
+  Calendar,
+  Users,
+} from "lucide-react";
 
 export default function Fitur() {
+  const features = [
+    {
+      icon: Clock,
+      title: "Peminjaman Cepat",
+      description:
+        "Proses peminjaman ruangan yang cepat dan efisien hanya dengan beberapa klik. Hemat waktu Anda dalam mengatur jadwal.",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      icon: Bell,
+      title: "Notifikasi Pengingat",
+      description:
+        "Dapatkan notifikasi real-time dan pengingat otomatis untuk setiap peminjaman ruangan yang akan datang.",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+    },
+    {
+      icon: FileText,
+      title: "Laporan Lengkap",
+      description:
+        "Akses laporan detail dan analisis penggunaan ruangan untuk pengambilan keputusan yang lebih baik.",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
+    {
+      icon: CheckCircle,
+      title: "Konfirmasi Otomatis",
+      description:
+        "Sistem konfirmasi otomatis untuk memastikan ketersediaan ruangan dan menghindari konflik jadwal.",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+    },
+    {
+      icon: Calendar,
+      title: "Penjadwalan Fleksibel",
+      description:
+        "Atur jadwal dengan mudah dan fleksibel sesuai dengan kebutuhan dan ketersediaan ruangan.",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+    },
+    {
+      icon: Users,
+      title: "Manajemen Pengguna",
+      description:
+        "Kelola hak akses dan peran pengguna untuk keamanan dan efisiensi sistem yang lebih baik.",
+      color: "text-rose-600",
+      bgColor: "bg-rose-50",
+    },
+  ];
+
   return (
-    <div>
-      <section id="features" className="py-16 bg-gray-100">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="text-4xl font-bold mb-8 text-blue-900">Fitur Utama</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Kartu Peminjaman Cepat */}
-            <div className="bg-white p-8 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl hover:ring-2 hover:ring-blue-500 hover:ring-opacity-50">
-              <div className="flex justify-center mb-4">
-                <FaClock className="text-4xl text-blue-500" />
-              </div>
-              <h4 className="text-xl font-semibold mb-4">Peminjaman Cepat</h4>
-              <p className="text-gray-700">
-                Proses peminjaman ruangan yang cepat dan efisien hanya dengan
-                beberapa klik.
-              </p>
-            </div>
-
-            {/* Kartu Notifikasi Pengingat */}
-            <div className="bg-white p-8 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl hover:ring-2 hover:ring-blue-500 hover:ring-opacity-50">
-              <div className="flex justify-center mb-4">
-                <FaBell className="text-4xl text-blue-500" />
-              </div>
-              <h4 className="text-xl font-semibold mb-4">
-                Notifikasi Pengingat
-              </h4>
-              <p className="text-gray-700">
-                Dapatkan notifikasi berupa hitung mundur untuk mengingatkan
-                peminjaman Anda.
-              </p>
-            </div>
-
-            {/* Kartu Laporan Lengkap */}
-            <div className="bg-white p-8 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl hover:ring-2 hover:ring-blue-500 hover:ring-opacity-50">
-              <div className="flex justify-center mb-4">
-                <FaFileAlt className="text-4xl text-blue-500" />
-              </div>
-              <h4 className="text-xl font-semibold mb-4">Laporan Lengkap</h4>
-              <p className="text-gray-700">
-                Laporan lengkap tentang riwayat peminjaman dan penggunaan
-                ruangan.
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">
+            Fitur Unggulan
+          </h2>
+          <h3 className="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Solusi Modern untuk Peminjaman Ruangan
+          </h3>
+          <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+            Nikmati berbagai fitur yang dirancang untuk memudahkan proses
+            peminjaman dan pengelolaan ruangan
+          </p>
         </div>
-      </section>
+
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature, index) => (
+            <div key={index} className="relative group">
+              <div className="h-full bg-white rounded-2xl shadow-sm transition-all duration-300 p-8 hover:shadow-lg border border-gray-100">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className={`p-3 rounded-xl ${feature.bgColor}`}>
+                    <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                  </div>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-3">
+                  {feature.title}
+                </h4>
+                <p className="text-gray-600 leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
+import { Mail, Lock, User, ShieldCheck, LogIn } from "lucide-react";
 import axios from "axios";
 
 export default function Register() {
-  const router = useRouter(); // Inisialisasi router
+  const router = useRouter();
   const [name, setName] = useState("");
   const [nimNip, setNimNip] = useState("");
   const [role, setRole] = useState("");
@@ -12,124 +13,121 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    // Validasi email
-    if (!email.endsWith(".undip.ac.id")) {
-      setPasswordMessage("Gunakan Akun SSO UNDIP Untuk Mendaftar");
-      return; // Hentikan eksekusi lebih lanjut jika email tidak valid
-    }
-
-    if (password !== confirmPassword) {
-      setPasswordMessage("Password dan Konfirmasi Password tidak cocok");
-      return; // Hentikan eksekusi jika password tidak cocok
-    }
-
-    // Jika password cocok, lanjutkan dengan proses registrasi
-    console.log("Register:", { name, nimNip, role, email, password });
+    setIsLoading(true);
+    setPasswordMessage("");
 
     try {
-      // Buat pengguna di tabel users terlebih dahulu
+      // Validasi email UNDIP
+      if (!email.endsWith(".undip.ac.id")) {
+        setPasswordMessage("Gunakan Akun SSO UNDIP Untuk Mendaftar");
+        setIsLoading(false);
+        return;
+      }
+
+      // Validasi password
+      if (password !== confirmPassword) {
+        setPasswordMessage("Password dan Konfirmasi Password tidak cocok");
+        setIsLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        setPasswordMessage("Password harus minimal 6 karakter");
+        setIsLoading(false);
+        return;
+      }
+
+      // Registrasi user pertama
       const userResponse = await axios.post(
         "https://be-perpus-undip.up.railway.app/api/register",
         {
-          email,
+          email: email.toLowerCase().trim(),
           password,
           role,
         }
       );
-      console.log(
-        "Pengguna di tabel users berhasil dibuat:",
-        userResponse.data
-      );
 
-      // Jika berhasil, lanjutkan untuk membuat pengguna di tabel pengguna
-      const penggunaResponse = await axios.post(
-        "https://be-perpus-undip.up.railway.app/api/register-pengguna",
-        {
-          name,
-          nim_nip: nimNip,
-          email,
-          role,
+      if (userResponse.data.message === "Pengguna berhasil dibuat") {
+        // Registrasi data pengguna tambahan
+        const penggunaResponse = await axios.post(
+          "https://be-perpus-undip.up.railway.app/api/register-pengguna",
+          {
+            name,
+            nim_nip: nimNip,
+            email: email.toLowerCase().trim(),
+            role,
+          }
+        );
+
+        if (
+          penggunaResponse.data.message ===
+          "Pengguna berhasil dibuat, kode verifikasi telah dikirim ke email Anda."
+        ) {
+          alert(
+            "Berhasil mendaftarkan akun! Silakan cek email Anda untuk verifikasi."
+          );
+          router.push(
+            `/page/Register/konfirmasi?email=${encodeURIComponent(email)}`
+          );
+        } else {
+          throw new Error("Gagal mendaftarkan data pengguna tambahan");
         }
-      );
-      console.log(
-        "Pengguna di tabel pengguna berhasil dibuat:",
-        penggunaResponse.data
-      );
-
-      alert("Berhasil mendaftarkan akun!");
-
-      // Redirect ke halaman konfirmasi dengan email sebagai query parameter
-      router.push(
-        `/page/Register/konfirmasi?email=${encodeURIComponent(email)}`
-      );
+      } else {
+        throw new Error("Gagal mendaftarkan user");
+      }
     } catch (error) {
-      console.error(
-        "Terjadi kesalahan saat mendaftar:",
-        error.response?.data || error.message
-      );
-      setPasswordMessage("Terjadi kesalahan saat mendaftar, coba lagi."); // Menampilkan pesan kesalahan
+      console.error("Registration error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Terjadi kesalahan saat mendaftar, coba lagi.";
+      setPasswordMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/image.png')" }}
-    >
-      <div className="bg-white bg-opacity-95 p-10 rounded-lg shadow-lg w-[500px] h-[625px]">
-        <div className="flex justify-center mb-4">
-          <img src="/logo.png" alt="Logo UPT Perpustakaan" className="h-12" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 max-h-[90vh] w-[90%] max-w-md overflow-y-auto">
+        <div className="flex flex-col items-center">
+          <LogIn className="h-12 w-12 text-blue-600 mb-4" />
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            Daftar Akun Baru
+          </h2>
+          <p className="text-gray-500 mb-6">UPT Perpustakaan UNDIP</p>
         </div>
-        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
-          Daftar Akun Baru
-        </h2>
-        <h3 className="text-xl font-semibold text-center text-gray-700 mb-4">
-          UPT Perpustakaan UNDIP
-        </h3>
-        <p className="text-center text-gray-600 mb-6">
-          Isi formulir di bawah ini untuk membuat akun baru.
-        </p>
-        <form
-          onSubmit={handleRegister}
-          className="overflow-y-auto h-[300px] px-2"
-        >
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="name">
-              Nama
-            </label>
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div className="relative">
+            <User className="absolute left-3 top-3 text-gray-400" />
             <input
               type="text"
-              id="name"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+              placeholder="Nama"
+              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="nimNip">
-              NIM/NIP
-            </label>
+          <div className="relative">
+            <ShieldCheck className="absolute left-3 top-3 text-gray-400" />
             <input
               type="text"
-              id="nimNip"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+              placeholder="NIM/NIP"
+              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
               value={nimNip}
               onChange={(e) => setNimNip(e.target.value)}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="role">
-              Peran
-            </label>
+          <div className="relative">
+            <User className="absolute left-3 top-3 text-gray-400" />
             <select
-              id="role"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
               value={role}
               onChange={(e) => setRole(e.target.value)}
               required
@@ -142,63 +140,64 @@ export default function Register() {
               <option value="Staff">Staff</option>
             </select>
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="email">
-              Email
-            </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 text-gray-400" />
             <input
               type="email"
-              id="email"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+              placeholder="Email"
+              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="password">
-              Password
-            </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 text-gray-400" />
             <input
               type="password"
-              id="password"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+              placeholder="Password"
+              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 mb-2"
-              htmlFor="confirmPassword"
-            >
-              Konfirmasi Password
-            </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 text-gray-400" />
             <input
               type="password"
-              id="confirmPassword"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+              placeholder="Konfirmasi Password"
+              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
-          <p className="text-red-500 mb-4">{passwordMessage}</p>
+          {passwordMessage && (
+            <p className="text-red-500 text-sm">{passwordMessage}</p>
+          )}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-500 transition duration-200"
+            disabled={isLoading}
+            className={`w-full ${
+              isLoading ? "bg-blue-400" : "bg-blue-600"
+            } text-white p-3 rounded-md font-semibold hover:bg-blue-500 transition duration-200 flex items-center justify-center`}
           >
-            Daftar
+            {isLoading ? (
+              "Mendaftar..."
+            ) : (
+              <>
+                <User className="mr-2" />
+                Daftar
+              </>
+            )}
           </button>
         </form>
-        <div className="mt-4 text-center text-gray-600">
-          <p>
-            Sudah punya akun?{" "}
-            <a href="/page/Login" className="text-blue-600 hover:underline">
-              Masuk sekarang
-            </a>
-          </p>
+        <div className="mt-6 text-center text-gray-500">
+          Sudah punya akun?{" "}
+          <a href="/page/Login" className="text-blue-600 hover:underline">
+            Masuk sekarang
+          </a>
         </div>
       </div>
     </div>

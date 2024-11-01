@@ -6,7 +6,6 @@ import Hero from "./page/Hero";
 import Fitur from "./page/Fitur";
 import CaraKerja from "./page/CaraKerja";
 import Kontak from "./page/Kontak";
-import Footer from "./page/Footer";
 import WhatsAppFloating from "./page/Wa";
 import Peta from "./page/Peta";
 import Ruangan from "./page/Ruangan";
@@ -38,12 +37,13 @@ export default function Home() {
       <Hero />
       <div className="container mx-auto px-4">
         <Fitur />
-        <CaraKerja />
+        <div id="cara">
+          <CaraKerja />
+        </div>
         <Ruangan email={email} role={role} />
         <Peta />
       </div>
       <Kontak />
-      <Footer />
       <WhatsAppFloating />
     </div>
   );

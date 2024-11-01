@@ -1,117 +1,164 @@
 "use client";
 import React, { useState } from "react";
-import axios from "axios"; // Import axios
-import { useRouter } from "next/navigation"; // Import useRouter untuk navigasi
-import { FaArrowLeft } from "react-icons/fa"; // Import icon untuk back home
-import Cookies from "js-cookie"; // Import js-cookie
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { LogIn, UserCircle2, Lock, Home, User, Loader2 } from "lucide-react";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter(); // Inisialisasi router
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
       const response = await axios.post(
         "https://be-perpus-undip.up.railway.app/api/login",
         {
-          email: username, // Ganti username dengan email
+          email: username,
           password,
         }
       );
 
-      // Ambil email dan role dari respons
-      const { email, role } = response.data.user; // Sesuaikan dengan struktur respons Anda
+      const { email, role } = response.data.user;
 
-      // Simpan email dan role ke cookies
       Cookies.set("email", email);
       Cookies.set("role", role);
 
-      alert("Berhasil Login");
       router.push("/");
     } catch (error) {
-      // Tampilkan pesan kesalahan jika ada
       if (error.response) {
-        console.log(error.response.data.message);
+        setError(error.response.data.message || "Email atau password salah");
       } else {
-        console.log(
-          "Terjadi kesalahan saat melakukan login. Silakan coba lagi."
-        );
+        setError("Terjadi kesalahan saat melakukan login. Silakan coba lagi.");
       }
       console.error("Terjadi kesalahan saat melakukan login:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/image.png')" }} // Ganti dengan URL gambar latar Anda
-    >
-      <div className="bg-white bg-opacity-95 p-10 rounded-lg shadow-lg w-[500px]">
-        <div className="flex justify-center mb-4">
-          <img src="/logo.png" alt="Logo UPT Perpustakaan" className="h-12" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+      <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 space-y-6">
+        <div className="flex flex-col items-center space-y-4">
+          <UserCircle2
+            size={64}
+            className="text-blue-600 mb-2"
+            strokeWidth={1.5}
+          />
+          <h2 className="text-3xl font-bold text-gray-800 text-center">
+            Sistem Peminjaman Ruangan
+          </h2>
+          <p className="text-gray-500 text-center">UPT Perpustakaan UNDIP</p>
         </div>
-        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
-          Sistem Peminjaman Ruangan
-        </h2>
-        <h3 className="text-xl font-semibold text-center text-gray-700 mb-4">
-          UPT Perpustakaan UNDIP
-        </h3>
-        <p className="text-center text-gray-600 mb-6">
-          Selamat datang di sistem peminjaman ruangan. Silakan masuk untuk
-          melanjutkan.
-        </p>
-        <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="username">
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label
+              htmlFor="username"
+              className="text-gray-700 mb-2 flex items-center"
+            >
+              <User className="mr-2 text-gray-500" size={20} />
               Username
             </label>
-            <input
-              type="text"
-              id="username"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="username"
+                className="w-full text-gray-600 pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <User className="text-gray-400" size={20} />
+              </div>
+            </div>
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="password">
+
+          <div>
+            <label
+              htmlFor="password"
+              className="text-gray-700 mb-2 flex items-center"
+            >
+              <Lock className="mr-2 text-gray-500" size={20} />
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full p-4 border text-gray-700 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <input
+                type="password"
+                id="password"
+                className="w-full text-gray-600 pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="text-gray-400" size={20} />
+              </div>
+            </div>
           </div>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-500 transition duration-200"
+            disabled={isLoading}
+            className="w-full flex items-center justify-center bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 space-x-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Masuk
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" size={20} />
+                <span>Logging in...</span>
+              </>
+            ) : (
+              <>
+                <LogIn size={20} />
+                <span>Masuk</span>
+              </>
+            )}
           </button>
+
+          <div className="text-center">
+            <a
+              href="/page/LupaPassword"
+              className="text-blue-600 hover:underline font-semibold"
+            >
+              Lupa Password?
+            </a>
+          </div>
         </form>
-        <p className="mt-4 text-center text-gray-600">
-          Belum punya akun?{" "}
-          <a href="/page/Register" className="text-blue-600 hover:underline">
-            Daftar sekarang
-          </a>
-        </p>
-        <p className="mt-4 text-center text-gray-500">
+
+        <div className="text-center space-y-4">
+          <p className="text-gray-600">
+            Belum punya akun?{" "}
+            <a
+              href="/page/Register"
+              className="text-blue-600 hover:underline font-semibold"
+            >
+              Daftar sekarang
+            </a>
+          </p>
+
           <a
             href="/"
-            className="flex items-center justify-center hover:underline"
+            className="flex items-center justify-center text-gray-500 hover:text-blue-600 transition duration-300"
           >
-            <FaArrowLeft className="mr-2" />
-            Back home
+            <Home className="mr-2" size={20} />
+            Kembali ke Beranda
           </a>
-        </p>
+        </div>
       </div>
     </div>
   );

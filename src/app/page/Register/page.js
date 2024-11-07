@@ -8,7 +8,6 @@ export default function Register() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [nimNip, setNimNip] = useState("");
-  const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,7 +21,14 @@ export default function Register() {
 
     try {
       // Validasi email UNDIP
-      if (!email.endsWith(".undip.ac.id")) {
+      let role;
+      if (email.endsWith("@students.undip.ac.id")) {
+        role = "Mahasiswa";
+      } else if (email.endsWith("@lecturer.undip.ac.id")) {
+        role = "Dosen";
+      } else if (email.endsWith("@staff.undip.ac.id")) {
+        role = "Staff";
+      } else {
         setPasswordMessage("Gunakan Akun SSO UNDIP Untuk Mendaftar");
         setIsLoading(false);
         return;
@@ -123,22 +129,6 @@ export default function Register() {
               onChange={(e) => setNimNip(e.target.value)}
               required
             />
-          </div>
-          <div className="relative">
-            <User className="absolute left-3 top-3 text-gray-400" />
-            <select
-              className="w-full pl-10 p-3 border rounded-md focus:ring-2 focus:ring-blue-600 text-gray-600"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Pilih Peran
-              </option>
-              <option value="Mahasiswa">Mahasiswa</option>
-              <option value="Dosen">Dosen</option>
-              <option value="Staff">Staff</option>
-            </select>
           </div>
           <div className="relative">
             <Mail className="absolute left-3 top-3 text-gray-400" />

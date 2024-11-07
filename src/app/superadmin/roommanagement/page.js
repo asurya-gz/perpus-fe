@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   FaEdit,
   FaTrashAlt,
@@ -7,17 +8,32 @@ import {
   FaFileImport,
   FaEye,
 } from "react-icons/fa";
-import ruanganData from "@/app/page/PeminjamanRuangan/components/RuanganData/ruanganData";
 import ImportRoomModal from "./importRoomModal/page";
 import DeleteRoomModal from "./deleteRoomModal/page";
 import DetailRuanganModal from "./detailRuanganModal/page";
 
 export default function RoomManagementSuperAdmin() {
+  const [ruanganData, setRuanganData] = useState([]); // State untuk menyimpan data ruangan
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [roomIdToDelete, setRoomIdToDelete] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null); // State untuk ruangan yang dipilih untuk detail
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State untuk modal detail
+
+  useEffect(() => {
+    const fetchRuanganData = async () => {
+      try {
+        const response = await axios.get(
+          "https://be-perpus-undip.up.railway.app/api/get-all-ruangan"
+        );
+        setRuanganData(response.data.data);
+      } catch (error) {
+        console.error("Error fetching ruangan data:", error);
+      }
+    };
+
+    fetchRuanganData();
+  }, []);
 
   const handleDetailClick = (room) => {
     setSelectedRoom(room); // Set ruangan yang dipilih
@@ -35,7 +51,6 @@ export default function RoomManagementSuperAdmin() {
 
   const handleAddRoomClick = () => {
     console.log("Tambah ruangan baru");
-    // Logika untuk menambah ruangan baru
   };
 
   const handleImportRoomClick = () => {
@@ -59,7 +74,6 @@ export default function RoomManagementSuperAdmin() {
   const handleDeleteConfirm = (id) => {
     console.log(`Ruangan dengan ID: ${id} telah dihapus`);
     closeDeleteModal(); // Tutup modal setelah konfirmasi
-    // Tambahkan logika untuk menghapus ruangan dari data
   };
 
   return (
@@ -122,7 +136,7 @@ export default function RoomManagementSuperAdmin() {
               <p className="mt-2 text-gray-800">
                 <strong>Kapasitas:</strong> {ruangan.capacity}
               </p>
-              {ruangan.withLetter ? (
+              {ruangan.with_letter == 1 ? (
                 <p className="text-red-600 mt-2">
                   <strong>* Ruangan ini membutuhkan surat peminjaman</strong>
                 </p>
@@ -133,7 +147,7 @@ export default function RoomManagementSuperAdmin() {
               )}
               <div className="mt-4 flex space-x-2">
                 <button
-                  onClick={() => handleDetailClick(ruangan)} // Pass the whole room object
+                  onClick={() => handleDetailClick(ruangan)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
                 >
                   <FaEye className="mr-2" />

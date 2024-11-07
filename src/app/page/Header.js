@@ -40,7 +40,7 @@ const getUserMenuItems = (isLoggedIn) => {
         label: "Profile",
       },
       {
-        href: "/manajemen-booking",
+        href: "/page/ManajemenBooking",
         icon: Building,
         label: "Manajemen Booking",
       },

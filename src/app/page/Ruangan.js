@@ -1,12 +1,28 @@
-import React, { useState } from "react";
-import DetailModal from "./PeminjamanRuangan/DetailModal";
-import ruanganData from "./PeminjamanRuangan/components/RuanganData/ruanganData";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Download, Users, Info, ChevronRight } from "lucide-react";
+import DetailModal from "./PeminjamanRuangan/DetailModal";
 
 export default function Ruangan({ email, role }) {
+  const [ruanganData, setRuanganData] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
+
+  useEffect(() => {
+    const fetchRuanganData = async () => {
+      try {
+        const response = await axios.get(
+          "https://be-perpus-undip.up.railway.app/api/get-all-ruangan"
+        );
+        setRuanganData(response.data.data);
+      } catch (error) {
+        console.error("Error fetching ruangan data:", error);
+      }
+    };
+
+    fetchRuanganData();
+  }, []);
 
   const handleBoxClick = (room) => {
     setSelectedRoom(room);
@@ -17,6 +33,14 @@ export default function Ruangan({ email, role }) {
     setIsModalOpen(false);
     setSelectedRoom(null);
   };
+
+  // Tambahkan console.log untuk debugging
+  useEffect(() => {
+    console.log("Modal State:", {
+      isModalOpen,
+      selectedRoom,
+    });
+  }, [isModalOpen, selectedRoom]);
 
   return (
     <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -49,7 +73,7 @@ export default function Ruangan({ email, role }) {
                 <button
                   onClick={() => handleBoxClick(ruang)}
                   className={`absolute bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transform transition-all duration-300 ${
-                    hoveredId === ruang.id || selectedRoom?.id === ruang.id
+                    hoveredId === ruang.id
                       ? "translate-y-0 opacity-100"
                       : "translate-y-4 opacity-0"
                   }`}
@@ -66,12 +90,12 @@ export default function Ruangan({ email, role }) {
 
                 <div className="flex items-center text-gray-600 mb-4">
                   <Users className="w-5 h-5 mr-2" />
-                  <span>Kapasitas: {ruang.capacity} orang</span>
+                  <span>Kapasitas: {ruang.capacity} </span>
                 </div>
 
                 <p className="text-gray-700 mb-4">{ruang.description}</p>
 
-                {ruang.withLetter && (
+                {ruang.with_letter === 1 && (
                   <div className="border-t border-gray-100 pt-4 mt-4">
                     <div className="flex items-start space-x-2 text-amber-600 mb-3">
                       <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -86,7 +110,7 @@ export default function Ruangan({ email, role }) {
                       className="inline-flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200"
                     >
                       <Download className="w-4 h-4" />
-                      <span>Download Template Surat</span>
+                      <span>Download Format Surat</span>
                     </a>
                   </div>
                 )}
@@ -96,13 +120,12 @@ export default function Ruangan({ email, role }) {
         </div>
       </div>
 
-      {isModalOpen && (
-        <DetailModal
-          room={selectedRoom}
-          onClose={closeModal}
-          ruanganData={ruanganData}
-        />
-      )}
+      <DetailModal
+        isOpen={isModalOpen}
+        room={selectedRoom}
+        onClose={closeModal}
+        ruanganData={ruanganData}
+      />
     </div>
   );
 }

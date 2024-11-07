@@ -6,39 +6,6 @@ import ImportUserModal from "./importUsersModal/page";
 import EditUserModal from "./editUserModal/page";
 import DeleteUserModal from "./deleteUserModal/page";
 
-const initialUsers = [
-  {
-    id: 1,
-    username: "agung_surya",
-    email: "agung@example.com",
-    role: "Admin",
-  },
-  {
-    id: 2,
-    username: "diana_rahma",
-    email: "diana@example.com",
-    role: "User",
-  },
-  {
-    id: 3,
-    username: "budi_setiawan",
-    email: "budi@example.com",
-    role: "Moderator",
-  },
-  {
-    id: 4,
-    username: "siti_nurbaya",
-    email: "siti@example.com",
-    role: "Admin",
-  },
-  {
-    id: 5,
-    username: "rudi_susanto",
-    email: "rudi@example.com",
-    role: "User",
-  },
-];
-
 export default function UserManagementSuperAdmin() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,12 +17,29 @@ export default function UserManagementSuperAdmin() {
   const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
-    setUsers(initialUsers);
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(
+          "https://be-perpus-undip.up.railway.app/api/all-pengguna"
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          setUsers(data.data); // Menetapkan data pengguna yang diterima
+        } else {
+          console.error("Error fetching users:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const filteredUsers = users.filter(
     (user) =>
-      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -123,7 +107,7 @@ export default function UserManagementSuperAdmin() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Username
+                Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                 Email
@@ -140,7 +124,7 @@ export default function UserManagementSuperAdmin() {
             {filteredUsers.map((user) => (
               <tr key={user.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {user.username}
+                  {user.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.email}

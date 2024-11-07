@@ -1,116 +1,121 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import ModalSlot from "./ModalSlot";
-import { generateTimeSlots } from "./components/TimeSlots";
-import {
-  FaCheckCircle,
-  FaTimesCircle,
-  FaClock,
-  FaInfoCircle,
-} from "react-icons/fa";
 import BorrowerInfoModal from "./components/BorrowerInfoModal";
+import { Clock, CheckCircle, XCircle, Info } from "lucide-react";
 
-// Komponen utama untuk peminjaman ruangan
-export default function PeminjamanRuangan({ room, selectedDate, ruanganData }) {
-  const { ruang2_1, ruang2_2, ruang3_1, ruang3_2, ruang4 } =
-    generateTimeSlots(); // Ambil data slot waktu dari generateTimeSlots
-  const [selectedSlot, setSelectedSlot] = useState(null); // Simpan slot yang dipilih untuk modal
+export default function PeminjamanRuangan({ room, selectedDate }) {
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [borrowerInfo, setBorrowerInfo] = useState(null);
 
-  // Fungsi untuk mengecek apakah slot sudah lewat
-  const isPastSlot = (slot) => {
-    const slotDateTime = new Date(`${selectedDate}T${slot.time}`);
-    return slotDateTime < new Date();
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0]; // Format YYYY-MM-DD
   };
 
-  // Cek ketersediaan ruanganData sebelum mencari selectedRuangan
-  const selectedRuangan = ruanganData?.find((ruangan) => ruangan.name === room);
+  const compareDates = (date1, date2) => {
+    return new Date(date1).toDateString() === new Date(date2).toDateString();
+  };
 
-  // Pastikan selectedRuangan ada sebelum melanjutkan
-  if (!selectedRuangan) {
-    return (
-      <p className="text-center text-gray-500">Data ruangan tidak tersedia.</p>
-    );
-  }
+  useEffect(() => {
+    const fetchTimeSlots = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post(
+          "https://be-perpus-undip.up.railway.app/api/time-slots",
+          {
+            room_id: room.id,
+          }
+        );
+        const filteredSlots = response.data.data.filter((slot) =>
+          compareDates(slot.date, selectedDate)
+        );
 
-  console.log(selectedRuangan.withLetter);
+        setTimeSlots(filteredSlots);
+        setError(null);
+      } catch (err) {
+        setError("Error loading time slots");
+        console.error("Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Fungsi untuk menentukan warna berdasarkan status slot
+    if (room && selectedDate) {
+      fetchTimeSlots();
+    }
+  }, [room, selectedDate]);
+
+  const isPastSlot = (slot) => {
+    const now = new Date();
+    const slotDateTime = new Date(`${selectedDate}T${slot.time}`);
+    return slotDateTime < now;
+  };
+
   const getSlotColor = (status, isPast) => {
     if (isPast) {
       return "bg-gray-300 text-gray-500"; // Slot yang sudah lewat
     }
     switch (status) {
       case "available":
-        return "bg-white text-gray-900";
+        return "bg-green-500 text-white border-green-600";
       case "booked":
-        return "bg-blue-400 text-white";
+        return "bg-blue-500 text-white border-blue-600";
       case "holiday":
-        return "bg-gray-600 text-white";
+        return "bg-gray-600 text-white border-gray-700";
       default:
         return "";
     }
   };
 
   const handleSlotClick = (slot) => {
-    console.log("Slot clicked: ", slot); // Debugging untuk slot yang diklik
     if (slot.status === "available" && !isPastSlot(slot)) {
       setSelectedSlot(slot);
     } else if (slot.status === "booked") {
-      setBorrowerInfo(slot); // Simpan informasi peminjam ke state
+      setBorrowerInfo(slot);
     } else {
       alert(`Slot waktu ${slot.time} tidak tersedia.`);
     }
   };
 
-  // Fungsi untuk menutup modal
   const closeModal = () => {
     setSelectedSlot(null);
-    console.log("Modal closed"); // Debugging saat modal ditutup
   };
 
-  const timeSlots = (() => {
-    switch (room) {
-      case "Ruang 2.1":
-        return ruang2_1[selectedDate];
-      case "Ruang 2.2":
-        return ruang2_2[selectedDate];
-      case "Ruang 3.1":
-        return ruang3_1[selectedDate];
-      case "Ruang 3.2":
-        return ruang3_2[selectedDate];
-      case "Ruang 4":
-        return ruang4[selectedDate];
-      default:
-        return []; // Atau bisa menambahkan handling khusus
-    }
-  })();
+  if (loading) {
+    return <div className="text-center py-4">Loading...</div>;
+  }
 
-  console.log("Available time slots: ", timeSlots); // Debugging untuk slot waktu yang tersedia
+  if (error) {
+    return <div className="text-center text-red-500 py-4">{error}</div>;
+  }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-semibold text-center mb-6">
-        Timeline Peminjaman {room.name}
+        Timeline Peminjaman {room?.name}
       </h2>
 
-      {/* Keterangan warna slot */}
       <div className="flex flex-wrap justify-center text-sm mb-4 gap-4">
         <div className="flex items-center mr-6">
-          <div className="w-4 h-4 bg-white border border-gray-400 rounded-full mr-2"></div>
+          <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
           <span className="text-gray-700">Slot Tersedia</span>
         </div>
         <div className="flex items-center mr-6">
-          <div className="w-4 h-4 bg-blue-400 rounded-full mr-2"></div>
-          <span className="text-gray-700">Slot Dipesan</span>
+          <Clock className="w-4 h-4 text-blue-500 mr-2" />
+          <span className="text-blue-600">Slot Dipesan</span>
         </div>
         <div className="flex items-center mr-6">
-          <div className="w-4 h-4 bg-gray-600 rounded-full mr-2"></div>
-          <span className="text-gray-700">Tidak Ada Operasional</span>
+          <XCircle className="w-4 h-4 text-gray-600 mr-2" />
+          <span className="text-gray-600">Tidak Ada Operasional</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-gray-300 rounded-full mr-2"></div>
-          <span className="text-gray-700">Lewat Waktu</span>
+          <Info className="w-4 h-4 text-gray-400 mr-2" />
+          <span className="text-gray-400">Lewat Waktu</span>
         </div>
       </div>
 
@@ -118,9 +123,8 @@ export default function PeminjamanRuangan({ room, selectedDate, ruanganData }) {
         *Slot yang dipilih berlaku booked +30 menit
       </p>
 
-      {/* Container untuk slot waktu dengan scroll */}
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-        {Array.isArray(timeSlots) && timeSlots.length > 0 ? (
+        {timeSlots.length > 0 ? (
           timeSlots.map((slot, index) => {
             const pastSlot = isPastSlot(slot);
             return (
@@ -136,33 +140,31 @@ export default function PeminjamanRuangan({ room, selectedDate, ruanganData }) {
                 }`}
                 onClick={() => !pastSlot && handleSlotClick(slot)}
               >
-                <p>{slot.time}</p>
+                <p>{slot.time.substring(0, 5)}</p>
               </div>
             );
           })
         ) : (
-          <p className="text-center text-gray-500 w-full">
+          <p className="text-center text-gray-500 col-span-full">
             Tidak ada slot yang tersedia untuk tanggal ini.
           </p>
         )}
       </div>
 
-      {/* Modal untuk slot yang dipilih */}
       {selectedSlot && (
         <ModalSlot
           selectedSlot={selectedSlot}
           selectedDate={selectedDate}
           onClose={closeModal}
           timeSlots={timeSlots}
-          withLetter={selectedRuangan.withLetter}
+          withLetter={room?.with_letter}
         />
       )}
 
-      {/* Modal untuk informasi peminjam */}
       {borrowerInfo && (
         <BorrowerInfoModal
           slot={borrowerInfo}
-          onClose={() => setBorrowerInfo(null)} // Tutup modal dengan mengatur state menjadi null
+          onClose={() => setBorrowerInfo(null)}
         />
       )}
     </div>

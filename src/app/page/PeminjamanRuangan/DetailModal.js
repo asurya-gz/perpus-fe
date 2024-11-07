@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Cookies from "js-cookie";
 import PeminjamanRuangan from "./page";
 import {
@@ -22,12 +23,38 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-export default function DetailModal({ room, onClose, ruanganData }) {
-  if (!room) return null;
-
+export default function DetailModal({ room, onClose, isOpen }) {
+  const [roomData, setRoomData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [email, setEmail] = useState(null);
   const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const fetchRoomData = async () => {
+      if (!room?.id) return;
+
+      try {
+        setLoading(true);
+        const response = await axios.post(
+          "https://be-perpus-undip.up.railway.app/api/get-ruangan-by-id",
+          {
+            id: room.id,
+          }
+        );
+        setRoomData(response.data.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching room data:", err);
+        setError("Gagal mengambil data ruangan");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoomData();
+  }, [room?.id]);
 
   useEffect(() => {
     const emailFromCookie = Cookies.get("email");
@@ -40,12 +67,63 @@ export default function DetailModal({ room, onClose, ruanganData }) {
     setSelectedDate(event.target.value);
   };
 
+  // Return null jika modal tidak terbuka
+  if (!isOpen) return null;
+
+  // Tampilkan loading state
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+        <div className="bg-white rounded-xl p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Memuat data ruangan...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Tampilkan error jika ada
+  if (error) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+        <div className="bg-white rounded-xl p-8">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
+            <p className="mt-4 text-red-600">{error}</p>
+            <button
+              onClick={onClose}
+              className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Return null jika tidak ada data
+  if (!roomData) return null;
+
+  const {
+    name = "",
+    description = "",
+    capacity = "",
+    image = "",
+    with_letter = 0,
+    facilities = [],
+    rules = [],
+    time_slots = [],
+  } = roomData;
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
       <div className="bg-white rounded-xl shadow-2xl w-[90%] max-w-3xl h-[90vh] overflow-y-auto relative">
         {/* Header */}
         <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">{room.name}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{name}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -59,75 +137,81 @@ export default function DetailModal({ room, onClose, ruanganData }) {
           <div className="mb-8">
             <div className="relative rounded-xl overflow-hidden mb-4">
               <img
-                src={room.image}
-                alt={room.name}
+                src={image}
+                alt={name}
                 className="w-full h-64 object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
                 <div className="flex items-center text-white">
                   <Users className="w-5 h-5 mr-2" />
-                  <span>Kapasitas: {room.capacity} orang</span>
+                  <span>Kapasitas: {capacity}</span>
                 </div>
               </div>
             </div>
-            <p className="text-gray-600">{room.description}</p>
+            <p className="text-gray-600">{description}</p>
           </div>
 
           {/* Facilities Section */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
-              <MonitorSmartphone className="text-blue-500" />
-              <span>Fasilitas</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {room.facilities.map((facility, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 text-gray-600 bg-gray-50 p-3 rounded-lg"
-                >
-                  <CheckSquare className="w-4 h-4 text-green-500" />
-                  <span>{facility}</span>
-                </div>
-              ))}
+          {facilities?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
+                <MonitorSmartphone className="text-blue-500" />
+                <span>Fasilitas</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {facilities.map((facility, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 text-gray-600 bg-gray-50 p-3 rounded-lg"
+                  >
+                    <CheckSquare className="w-4 h-4 text-green-500" />
+                    <span>{facility}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Rules Section */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
-              <ClipboardList className="text-blue-500" />
-              <span>Tata Tertib Penggunaan</span>
-            </h3>
-            <div className="space-y-3">
-              {room.rules.map((rule, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-2 text-gray-600"
-                >
-                  <AlertCircle className="w-4 h-4 text-amber-500 mt-1 flex-shrink-0" />
-                  <span>{rule}</span>
-                </div>
-              ))}
+          {rules?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
+                <ClipboardList className="text-blue-500" />
+                <span>Tata Tertib Penggunaan</span>
+              </h3>
+              <div className="space-y-3">
+                {rules.map((rule, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-2 text-gray-600"
+                  >
+                    <AlertCircle className="w-4 h-4 text-amber-500 mt-1 flex-shrink-0" />
+                    <span>{rule}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Time Slots */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
-              <Clock className="text-blue-500" />
-              <span>Waktu Peminjaman</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {Object.entries(room.timeSlots).map(([period, time]) => (
-                <div key={period} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="font-medium text-gray-700 capitalize mb-1">
-                    {period}
+          {time_slots?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
+                <Clock className="text-blue-500" />
+                <span>Waktu Peminjaman</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {time_slots.map((slot, index) => (
+                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                    <div className="font-medium text-gray-700 capitalize mb-1">
+                      {slot.period}
+                    </div>
+                    <div className="text-gray-600">{slot.time_range}</div>
                   </div>
-                  <div className="text-gray-600">{time}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Date Selection and Booking */}
           {email && role ? (
@@ -135,7 +219,7 @@ export default function DetailModal({ room, onClose, ruanganData }) {
               <div>
                 <label
                   htmlFor="datePicker"
-                  className="block text-gray-700 font-medium mb-2 flex items-center gap-2"
+                  className="text-gray-700 font-medium mb-2 flex items-center gap-2"
                 >
                   <CalendarDays className="w-4 h-4 text-blue-500" />
                   Pilih Tanggal
@@ -150,9 +234,9 @@ export default function DetailModal({ room, onClose, ruanganData }) {
                 />
               </div>
               <PeminjamanRuangan
-                room={room.name}
+                room={roomData}
                 selectedDate={selectedDate}
-                ruanganData={ruanganData}
+                withLetter={with_letter}
               />
             </div>
           ) : (

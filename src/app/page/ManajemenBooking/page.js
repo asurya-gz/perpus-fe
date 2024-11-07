@@ -41,7 +41,11 @@ export default function ManajemenBooking() {
           throw new Error("Format data tidak sesuai");
         }
 
-        setBookedSlots(slots);
+        if (slots.length === 0) {
+          setError("Anda belum pernah melakukan peminjaman");
+        } else {
+          setBookedSlots(slots);
+        }
       } catch (err) {
         setError(err.message || "Gagal mengambil data booking");
       } finally {
